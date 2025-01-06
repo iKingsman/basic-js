@@ -20,13 +20,59 @@ const { NotImplementedError } = require('../extensions/index.js');
  * 
  */
 class VigenereCipheringMachine {
-  encrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+  constructor(direct = true) {
+    this.direct = direct;
+    this.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    this.alphabetCount = 26;
   }
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+
+  encrypt(text, key) {
+    if (!text || !key) throw new Error("Incorrect arguments!");
+    text = text.toUpperCase();
+    key = this.generateKey(text, key);
+    const encryptedText = [];
+    for (let i = 0, keyIndex = 0; i < text.length; i++) {
+      const symbol = text[i];
+      const keySymbol = key[keyIndex];
+      if (!this.alphabet.includes(symbol)) {
+        encryptedText.push(symbol);
+      } else {
+        const symbolIndex = this.alphabet.indexOf(symbol);
+        const shift = this.alphabet.indexOf(keySymbol);
+        const encryptedSymbolIndex = (symbolIndex + shift) % this.alphabetCount;
+        const encryptedSymbol = this.alphabet[encryptedSymbolIndex];
+        encryptedText.push(encryptedSymbol);
+        keyIndex++;
+      }
+    }
+    return this.direct ? encryptedText.join('') : encryptedText.reverse().join('');
+  }
+
+  decrypt(text, key) {
+    if (!text || !key) throw new Error("Incorrect arguments!");
+    text = text.toUpperCase();
+    key = this.generateKey(text, key);
+    const encryptedText = [];
+    for (let i = 0, keyIndex = 0; i < text.length; i++) {
+      const symbol = text[i];
+      const keySymbol = key[keyIndex];
+      if (!this.alphabet.includes(symbol)) {
+        encryptedText.push(symbol);
+      } else {
+        const symbolIndex = this.alphabet.indexOf(symbol);
+        const shift = this.alphabet.indexOf(keySymbol);
+        const encryptedSymbolIndex = (symbolIndex - shift + this.alphabetCount) % this.alphabetCount;
+        const encryptedSymbol = this.alphabet[encryptedSymbolIndex];
+        encryptedText.push(encryptedSymbol);
+        keyIndex++;
+      }
+    }
+    return this.direct ? encryptedText.join('') : encryptedText.reverse().join('');
+  }
+
+  generateKey(text, key) {
+    const keyDifference = Math.ceil(text.length / key.length);
+    return key.repeat(keyDifference).toUpperCase();
   }
 }
 
